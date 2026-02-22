@@ -1,73 +1,32 @@
-package com.revpay.entity;
+package com.revpay.dto.response;
 
-
-import com.revpay.enums.InvoiceStatus;
-import jakarta.persistence.Entity;
-import jakarta.persistence.*;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Entity
-@Table(name = "invoices")
 
-public class Invoice {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class InvoiceResponse {
+
     private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "business_user_id", nullable = false)
-    private User businessUser;
-
-    // customer details
-    @Column(nullable = false)
+    private String businessUserName;
+    private String businessUserEmail;
     private String customerName;
-
-    @Column(nullable = false)
     private String customerEmail;
-
     private String customerAddress;
-
-    @Column(nullable = false)
     private BigDecimal totalAmount;
-
     private String paymentTerms;
-
     private LocalDate dueDate;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private InvoiceStatus status;
-
-    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL)
-    private List<InvoiceLineItem> lineItems;
-
-    @Column(nullable = false, updatable = false)
+    private String status;
+    private List<InvoiceLineItemResponse> lineItems;
     private LocalDateTime createdAt;
 
-    private LocalDateTime updatedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-        status = InvoiceStatus.DRAFT;
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
-
-    public Invoice(User businessUser, LocalDateTime createdAt, String customerAddress, String customerEmail, String customerName, LocalDate dueDate, Long id, List<InvoiceLineItem> lineItems, String paymentTerms, InvoiceStatus status, BigDecimal totalAmount, LocalDateTime updatedAt) {
-        this.businessUser = businessUser;
+    public InvoiceResponse(String businessUserEmail, String businessUserName, LocalDateTime createdAt, String customerAddress, String customerEmail, String customerName, LocalDate dueDate, Long id, List<InvoiceLineItemResponse> lineItems, String paymentTerms, String status, BigDecimal totalAmount) {
+        this.businessUserEmail = businessUserEmail;
+        this.businessUserName = businessUserName;
         this.createdAt = createdAt;
         this.customerAddress = customerAddress;
         this.customerEmail = customerEmail;
@@ -78,18 +37,25 @@ public class Invoice {
         this.paymentTerms = paymentTerms;
         this.status = status;
         this.totalAmount = totalAmount;
-        this.updatedAt = updatedAt;
     }
 
-    public Invoice() {
+    public InvoiceResponse() {
     }
 
-    public User getBusinessUser() {
-        return businessUser;
+    public String getBusinessUserEmail() {
+        return businessUserEmail;
     }
 
-    public void setBusinessUser(User businessUser) {
-        this.businessUser = businessUser;
+    public void setBusinessUserEmail(String businessUserEmail) {
+        this.businessUserEmail = businessUserEmail;
+    }
+
+    public String getBusinessUserName() {
+        return businessUserName;
+    }
+
+    public void setBusinessUserName(String businessUserName) {
+        this.businessUserName = businessUserName;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -108,20 +74,20 @@ public class Invoice {
         this.customerAddress = customerAddress;
     }
 
-    public String getCustomerName() {
-        return customerName;
-    }
-
-    public void setCustomerName(String customerName) {
-        this.customerName = customerName;
-    }
-
     public String getCustomerEmail() {
         return customerEmail;
     }
 
     public void setCustomerEmail(String customerEmail) {
         this.customerEmail = customerEmail;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
     }
 
     public LocalDate getDueDate() {
@@ -140,11 +106,11 @@ public class Invoice {
         this.id = id;
     }
 
-    public List<InvoiceLineItem> getLineItems() {
+    public List<InvoiceLineItemResponse> getLineItems() {
         return lineItems;
     }
 
-    public void setLineItems(List<InvoiceLineItem> lineItems) {
+    public void setLineItems(List<InvoiceLineItemResponse> lineItems) {
         this.lineItems = lineItems;
     }
 
@@ -156,11 +122,11 @@ public class Invoice {
         this.paymentTerms = paymentTerms;
     }
 
-    public InvoiceStatus getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(InvoiceStatus status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 
@@ -172,29 +138,21 @@ public class Invoice {
         this.totalAmount = totalAmount;
     }
 
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
     @Override
     public String toString() {
-        return "Invoice{" +
-                "businessUser=" + businessUser +
+        return "InvoiceResponse{" +
+                "businessUserEmail='" + businessUserEmail + '\'' +
                 ", id=" + id +
+                ", businessUserName='" + businessUserName + '\'' +
                 ", customerName='" + customerName + '\'' +
                 ", customerEmail='" + customerEmail + '\'' +
                 ", customerAddress='" + customerAddress + '\'' +
                 ", totalAmount=" + totalAmount +
                 ", paymentTerms='" + paymentTerms + '\'' +
                 ", dueDate=" + dueDate +
-                ", status=" + status +
+                ", status='" + status + '\'' +
                 ", lineItems=" + lineItems +
                 ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
                 '}';
     }
 }
