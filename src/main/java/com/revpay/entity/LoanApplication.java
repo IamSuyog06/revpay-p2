@@ -4,18 +4,13 @@ package com.revpay.entity;
 import com.revpay.enums.LoanStatus;
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "loan_applications")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class LoanApplication {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -63,5 +58,137 @@ public class LoanApplication {
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+
+    public LoanApplication(LocalDateTime createdAt, String documentPath, BigDecimal emiAmount, String financialInfo, Long id, BigDecimal interestRate, BigDecimal loanAmount, String purpose, LoanStatus status, Integer tenure, LocalDateTime updatedAt, User user) {
+        this.createdAt = createdAt;
+        this.documentPath = documentPath;
+        this.emiAmount = emiAmount;
+        this.financialInfo = financialInfo;
+        this.id = id;
+        this.interestRate = interestRate;
+        this.loanAmount = loanAmount;
+        this.purpose = purpose;
+        this.status = status;
+        this.tenure = tenure;
+        this.updatedAt = updatedAt;
+        this.user = user;
+    }
+
+    public LoanApplication() {
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getDocumentPath() {
+        return documentPath;
+    }
+
+    public void setDocumentPath(String documentPath) {
+        this.documentPath = documentPath;
+    }
+
+    public BigDecimal getEmiAmount() {
+        return emiAmount;
+    }
+
+    public void setEmiAmount(BigDecimal emiAmount) {
+        this.emiAmount = emiAmount;
+    }
+
+    public String getFinancialInfo() {
+        return financialInfo;
+    }
+
+    public void setFinancialInfo(String financialInfo) {
+        this.financialInfo = financialInfo;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public BigDecimal getInterestRate() {
+        return interestRate;
+    }
+
+    public void setInterestRate(BigDecimal interestRate) {
+        this.interestRate = interestRate;
+    }
+
+    public BigDecimal getLoanAmount() {
+        return loanAmount;
+    }
+
+    public void setLoanAmount(BigDecimal loanAmount) {
+        this.loanAmount = loanAmount;
+    }
+
+    public String getPurpose() {
+        return purpose;
+    }
+
+    public void setPurpose(String purpose) {
+        this.purpose = purpose;
+    }
+
+    public LoanStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(LoanStatus status) {
+        this.status = status;
+    }
+
+    public Integer getTenure() {
+        return tenure;
+    }
+
+    public void setTenure(Integer tenure) {
+        this.tenure = tenure;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    @Override
+    public String toString() {
+        return "LoanApplication{" +
+                "createdAt=" + createdAt +
+                ", id=" + id +
+                ", user=" + user +
+                ", loanAmount=" + loanAmount +
+                ", purpose='" + purpose + '\'' +
+                ", tenure=" + tenure +
+                ", interestRate=" + interestRate +
+                ", emiAmount=" + emiAmount +
+                ", financialInfo='" + financialInfo + '\'' +
+                ", documentPath='" + documentPath + '\'' +
+                ", status=" + status +
+                ", updatedAt=" + updatedAt +
+                '}';
     }
 }
