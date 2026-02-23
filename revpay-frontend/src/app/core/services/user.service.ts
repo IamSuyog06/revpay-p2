@@ -19,11 +19,19 @@ export class UserService {
     return this.http.put<User>(`${this.apiUrl}/profile`, data);
   }
 
-  changePassword(data: { currentPassword: string; newPassword: string }): Observable<string> {
-    return this.http.put<string>(`${this.apiUrl}/change-password`, data);
-  }
+changePassword(data: { currentPassword: string; newPassword: string }): Observable<string> {
+  return this.http.put(
+    `${this.apiUrl}/change-password`,
+    data,
+    { responseType: 'text' }
+  );
+}
 
-  setTransactionPin(data: { pin: string; currentPin?: string }): Observable<string> {
-    return this.http.put<string>(`${this.apiUrl}/transaction-pin`, data);
-  }
+setTransactionPin(data: { pin: string; currentPin?: string }): Observable<string> {
+  return this.http.put(
+    `${this.apiUrl}/transaction-pin`,
+    data,
+    { responseType: 'text' }
+  );
+}
 }

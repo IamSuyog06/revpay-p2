@@ -53,11 +53,19 @@ export class WalletService {
     );
   }
 
-  declineRequest(requestId: number): Observable<string> {
-    return this.http.put<string>(`${this.apiUrl}/requests/${requestId}/decline`, {});
-  }
+declineRequest(requestId: number): Observable<string> {
+  return this.http.put(
+    `${this.apiUrl}/requests/${requestId}/decline`,
+    {},
+    { responseType: 'text' }
+  );
+}
 
-  cancelRequest(requestId: number): Observable<string> {
-    return this.http.put<string>(`${this.apiUrl}/requests/${requestId}/cancel`, {});
-  }
+cancelRequest(requestId: number): Observable<string> {
+  return this.http.put(
+    `${this.apiUrl}/requests/${requestId}/cancel`,
+    {},
+    { responseType: 'text' }
+  );
+}
 }
