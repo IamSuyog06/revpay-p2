@@ -1,0 +1,173 @@
+<div class="auth-container">
+  <div class="auth-card">
+
+    <div class="auth-header">
+      <div class="logo">
+        <span class="logo-icon">₹</span>
+        <span class="logo-text">RevPay</span>
+      </div>
+      <h2>Create Account</h2>
+      <p>Step {{ currentStep }} of 2</p>
+    </div>
+
+    <!-- step indicator -->
+    <div class="step-indicator">
+      <div class="step" [class.active]="currentStep >= 1" [class.done]="currentStep > 1">1</div>
+      <div class="step-line" [class.active]="currentStep > 1"></div>
+      <div class="step" [class.active]="currentStep >= 2">2</div>
+    </div>
+
+    <!-- account type toggle - shown on step 1 -->
+    <div class="account-type" *ngIf="currentStep === 1">
+      <button
+        class="type-btn"
+        [class.active]="!registerData.isBusiness"
+        (click)="setAccountType(false)">
+        👤 Personal
+      </button>
+      <button
+        class="type-btn"
+        [class.active]="registerData.isBusiness"
+        (click)="setAccountType(true)">
+        🏢 Business
+      </button>
+    </div>
+
+    <!-- step 1 - basic info -->
+    <form *ngIf="currentStep === 1" (ngSubmit)="nextStep()">
+
+      <div class="form-group">
+        <label>Full Name</label>
+        <input
+          type="text"
+          [(ngModel)]="registerData.fullName"
+          name="fullName"
+          placeholder="Enter your full name">
+      </div>
+
+      <div class="form-group">
+        <label>Email</label>
+        <input
+          type="email"
+          [(ngModel)]="registerData.email"
+          name="email"
+          placeholder="Enter your email">
+      </div>
+
+      <div class="form-group">
+        <label>Phone Number</label>
+        <input
+          type="tel"
+          [(ngModel)]="registerData.phone"
+          name="phone"
+          placeholder="Enter your phone number">
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <div class="input-with-icon">
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            [(ngModel)]="registerData.password"
+            name="password"
+            placeholder="Minimum 6 characters">
+          <button type="button" class="toggle-password" (click)="togglePassword()">
+            {{ showPassword ? '🙈' : '👁️' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Confirm Password</label>
+        <input
+          type="password"
+          [(ngModel)]="confirmPassword"
+          name="confirmPassword"
+          placeholder="Re-enter your password">
+      </div>
+
+      <button type="submit" class="btn-primary">
+        Continue →
+      </button>
+
+    </form>
+
+    <!-- step 2 - security and business info -->
+    <form *ngIf="currentStep === 2" (ngSubmit)="onRegister()">
+
+      <div class="form-group">
+        <label>Security Question</label>
+        <select [(ngModel)]="registerData.securityQuestion" name="securityQuestion">
+          <option value="">Select a question</option>
+          <option *ngFor="let q of securityQuestions" [value]="q">{{ q }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Security Answer</label>
+        <input
+          type="text"
+          [(ngModel)]="registerData.securityAnswer"
+          name="securityAnswer"
+          placeholder="Your answer">
+      </div>
+
+      <!-- business fields shown only if business account -->
+      <ng-container *ngIf="registerData.isBusiness">
+
+        <div class="business-section-title">Business Information</div>
+
+        <div class="form-group">
+          <label>Business Name</label>
+          <input
+            type="text"
+            [(ngModel)]="registerData.businessName"
+            name="businessName"
+            placeholder="Enter business name">
+        </div>
+
+        <div class="form-group">
+          <label>Business Type</label>
+          <select [(ngModel)]="registerData.businessType" name="businessType">
+            <option value="">Select business type</option>
+            <option *ngFor="let type of businessTypes" [value]="type">{{ type }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Tax ID</label>
+          <input
+            type="text"
+            [(ngModel)]="registerData.taxId"
+            name="taxId"
+            placeholder="Enter tax ID">
+        </div>
+
+        <div class="form-group">
+          <label>Business Address</label>
+          <input
+            type="text"
+            [(ngModel)]="registerData.businessAddress"
+            name="businessAddress"
+            placeholder="Enter business address">
+        </div>
+
+      </ng-container>
+
+      <div class="button-row">
+        <button type="button" class="btn-secondary" (click)="prevStep()">
+          ← Back
+        </button>
+        <button type="submit" class="btn-primary" [disabled]="isLoading">
+          {{ isLoading ? 'Creating...' : 'Create Account' }}
+        </button>
+      </div>
+
+    </form>
+
+    <div class="auth-footer">
+      <p>Already have an account? <a routerLink="/login">Sign in</a></p>
+    </div>
+
+  </div>
+</div>
