@@ -1,0 +1,48 @@
+<nav class="navbar">
+  <div class="navbar-brand">
+    <span class="logo-icon">₹</span>
+    <span class="logo-text">RevPay</span>
+  </div>
+
+  <div class="navbar-links" [class.open]="isMobileMenuOpen">
+    <a routerLink="/dashboard" routerLinkActive="active" (click)="isMobileMenuOpen=false">
+       Dashboard
+    </a>
+    <a routerLink="/wallet" routerLinkActive="active" (click)="isMobileMenuOpen=false">
+       Wallet
+    </a>
+    <a routerLink="/transactions" routerLinkActive="active" (click)="isMobileMenuOpen=false">
+       Transactions
+    </a>
+    <a routerLink="/payment-methods" routerLinkActive="active" (click)="isMobileMenuOpen=false">
+      Cards
+    </a>
+    <a routerLink="/notifications" routerLinkActive="active" (click)="isMobileMenuOpen=false">
+      Notifications
+      <span class="badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+    </a>
+
+    <!-- business only links -->
+    <ng-container *ngIf="isBusinessUser()">
+      <a routerLink="/invoices" routerLinkActive="active" (click)="isMobileMenuOpen=false">
+        Invoices
+      </a>
+      <a routerLink="/loans" routerLinkActive="active" (click)="isMobileMenuOpen=false">
+        Loans
+      </a>
+      <a routerLink="/analytics" routerLinkActive="active" (click)="isMobileMenuOpen=false">
+        Analytics
+      </a>
+    </ng-container>
+
+    <a routerLink="/profile" routerLinkActive="active" (click)="isMobileMenuOpen=false">
+      👤 Profile
+    </a>
+
+    <button class="btn-logout" (click)="logout()">Logout</button>
+  </div>
+
+  <button class="hamburger" (click)="toggleMobileMenu()">
+    {{ isMobileMenuOpen ? '✕' : '☰' }}
+  </button>
+</nav>

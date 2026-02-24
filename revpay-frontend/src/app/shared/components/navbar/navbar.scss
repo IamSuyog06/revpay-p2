@@ -1,0 +1,133 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  height: 64px;
+  background: #1a1a2e;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .logo-icon {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  .logo-text {
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+  }
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  a {
+    color: #aaa;
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+    position: relative;
+    white-space: nowrap;
+
+    &:hover {
+      color: white;
+      background: rgba(255,255,255,0.08);
+    }
+
+    &.active {
+      color: white;
+      background: rgba(102, 126, 234, 0.2);
+    }
+
+    .badge {
+      background: #e53935;
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 10px;
+      margin-left: 4px;
+    }
+  }
+}
+
+.btn-logout {
+  background: rgba(229, 57, 53, 0.15);
+  color: #ef5350;
+  border: 1px solid rgba(229, 57, 53, 0.3);
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 8px;
+  transition: all 0.2s;
+
+  &:hover {
+    background: rgba(229, 57, 53, 0.25);
+  }
+}
+
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .hamburger {
+    display: block;
+  }
+
+  .navbar-links {
+    display: none;
+    position: absolute;
+    top: 64px;
+    left: 0;
+    right: 0;
+    background: #1a1a2e;
+    flex-direction: column;
+    padding: 16px;
+    gap: 4px;
+    align-items: stretch;
+
+    &.open {
+      display: flex;
+    }
+
+    a {
+      padding: 12px 16px;
+    }
+
+    .btn-logout {
+      margin-left: 0;
+      margin-top: 8px;
+    }
+  }
+}
