@@ -11,6 +11,10 @@ export interface LoanApplication {
   remainingAmount: number;
   repayments: LoanRepayment[];
   createdAt: string;
+  documentPath?: string;
+  applicantName:string;
+  applicantEmail:string;
+ 
 }
 
 export interface LoanRepayment {
