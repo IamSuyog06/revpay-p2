@@ -1,0 +1,123 @@
+<app-navbar></app-navbar>
+
+<div class="analytics-container">
+
+  <div class="page-header">
+    <h1>Business Analytics</h1>
+  </div>
+
+  <div class="loading-state" *ngIf="isLoading">Loading analytics...</div>
+
+  <ng-container *ngIf="data && !isLoading">
+
+    <!-- wallet summary -->
+    <div class="section-title">Wallet Summary</div>
+    <div class="stats-grid">
+      <div class="stat-card green">
+        <div class="stat-icon">↓</div>
+        <div class="stat-info">
+          <div class="stat-label">Total Received</div>
+          <div class="stat-value">₹{{ data.totalReceived | number:'1.2-2' }}</div>
+        </div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-icon">↑</div>
+        <div class="stat-info">
+          <div class="stat-label">Total Sent</div>
+          <div class="stat-value">₹{{ data.totalSent | number:'1.2-2' }}</div>
+        </div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-icon">₹</div>
+        <div class="stat-info">
+          <div class="stat-label">Current Balance</div>
+          <div class="stat-value">₹{{ data.currentBalance | number:'1.2-2' }}</div>
+        </div>
+      </div>
+      <div class="stat-card purple">
+        <div class="stat-icon">🤝</div>
+        <div class="stat-info">
+          <div class="stat-label">Pending Requests</div>
+          <div class="stat-value">{{ data.pendingRequestsCount }}</div>
+          <div class="stat-sub">₹{{ data.pendingRequestsAmount | number:'1.2-2' }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- revenue report -->
+    <div class="section-title">Revenue Report</div>
+    <div class="revenue-grid">
+      <div class="revenue-card">
+        <div class="revenue-period">Today</div>
+        <div class="revenue-amount">₹{{ data.revenueReport.daily | number:'1.2-2' }}</div>
+      </div>
+      <div class="revenue-card highlight">
+        <div class="revenue-period">This Week</div>
+        <div class="revenue-amount">₹{{ data.revenueReport.weekly | number:'1.2-2' }}</div>
+      </div>
+      <div class="revenue-card">
+        <div class="revenue-period">This Month</div>
+        <div class="revenue-amount">₹{{ data.revenueReport.monthly | number:'1.2-2' }}</div>
+      </div>
+    </div>
+
+    <!-- invoice summary -->
+    <div class="section-title">Invoice Summary</div>
+    <div class="invoice-summary-grid">
+      <div class="inv-stat">
+        <div class="inv-stat-value">{{ data.invoiceSummary.totalInvoices }}</div>
+        <div class="inv-stat-label">Total Invoices</div>
+      </div>
+      <div class="inv-stat green">
+        <div class="inv-stat-value">{{ data.invoiceSummary.paidInvoices }}</div>
+        <div class="inv-stat-label">Paid</div>
+      </div>
+      <div class="inv-stat orange">
+        <div class="inv-stat-value">{{ data.invoiceSummary.unpaidInvoices }}</div>
+        <div class="inv-stat-label">Unpaid</div>
+      </div>
+      <div class="inv-stat red">
+        <div class="inv-stat-value">{{ data.invoiceSummary.overdueInvoices }}</div>
+        <div class="inv-stat-label">Overdue</div>
+      </div>
+    </div>
+
+    <div class="amount-row">
+      <div class="amount-card">
+        <div class="amount-label">Total Paid Amount</div>
+        <div class="amount-value green">₹{{ data.invoiceSummary.totalPaidAmount | number:'1.2-2' }}</div>
+      </div>
+      <div class="amount-card">
+        <div class="amount-label">Outstanding Amount</div>
+        <div class="amount-value red">₹{{ data.invoiceSummary.totalOutstandingAmount | number:'1.2-2' }}</div>
+      </div>
+    </div>
+
+    <!-- top customers -->
+    <div class="section-title">Top Customers</div>
+    <div class="top-customers" *ngIf="data && data.topCustomers && data.topCustomers.length > 0">
+      <div class="customer-header">
+        <span>Customer</span>
+        <span>Transactions</span>
+        <span>Volume</span>
+      </div>
+      <div class="customer-row" *ngFor="let c of data.topCustomers; let i = index">
+        <div class="customer-info">
+          <div class="customer-rank">{{ i + 1 }}</div>
+          <div>
+            <div class="customer-name">{{ c.customerName }}</div>
+            <div class="customer-email">{{ c.customerEmail }}</div>
+          </div>
+        </div>
+        <div class="customer-count">{{ c.transactionCount }} txns</div>
+        <div class="customer-volume">₹{{ c.totalTransactionVolume | number:'1.2-2' }}</div>
+      </div>
+    </div>
+
+    <div class="empty-state" *ngIf="!data || !data.topCustomers || data.topCustomers.length === 0">
+      No customer data yet
+    </div>
+
+  </ng-container>
+
+</div>
