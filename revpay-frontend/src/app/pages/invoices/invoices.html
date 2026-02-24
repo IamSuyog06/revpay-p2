@@ -1,0 +1,212 @@
+<app-navbar></app-navbar>
+
+<div class="invoices-container">
+
+  <div class="page-header">
+    <h1>Invoices</h1>
+    <button class="btn-create" (click)="toggleCreateForm()">
+      {{ showCreateForm ? '✕ Cancel' : '+ Create Invoice' }}
+    </button>
+  </div>
+
+  <!-- filter tabs -->
+  <div class="filter-tabs">
+    <button
+      *ngFor="let f of filters"
+      [class.active]="activeFilter === f"
+      (click)="setFilter(f)">
+      {{ f }}
+    </button>
+  </div>
+
+  <!-- create form -->
+  <div class="create-form" *ngIf="showCreateForm">
+    <h2>New Invoice</h2>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Customer Name *</label>
+        <input type="text" [(ngModel)]="newInvoice.customerName" placeholder="Customer name">
+      </div>
+      <div class="form-group">
+        <label>Customer Email *</label>
+        <input type="email" [(ngModel)]="newInvoice.customerEmail" placeholder="Customer email">
+      </div>
+      <div class="form-group">
+        <label>Customer Address</label>
+        <input type="text" [(ngModel)]="newInvoice.customerAddress" placeholder="Address">
+      </div>
+      <div class="form-group">
+        <label>Payment Terms</label>
+        <select [(ngModel)]="newInvoice.paymentTerms">
+          <option value="Net 15">Net 15</option>
+          <option value="Net 30">Net 30</option>
+          <option value="Net 60">Net 60</option>
+          <option value="Due on Receipt">Due on Receipt</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Due Date</label>
+        <input type="date" [(ngModel)]="newInvoice.dueDate">
+      </div>
+    </div>
+
+    <!-- line items -->
+    <div class="line-items-section">
+      <h3>Line Items</h3>
+
+      <div class="line-item-form">
+        <input type="text" [(ngModel)]="newLineItem.description" placeholder="Description">
+        <input type="number" [(ngModel)]="newLineItem.quantity" placeholder="Qty" min="1">
+        <input type="number" [(ngModel)]="newLineItem.unitPrice" placeholder="Unit Price">
+        <input type="number" [(ngModel)]="newLineItem.tax" placeholder="Tax %">
+        <button class="btn-add-item" (click)="addLineItem()">+ Add</button>
+      </div>
+
+      <table class="line-items-table" *ngIf="newInvoice.lineItems.length > 0">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Qty</th>
+            <th>Unit Price</th>
+            <th>Tax %</th>
+            <th>Total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of newInvoice.lineItems; let i = index">
+            <td>{{ item.description }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>₹{{ item.unitPrice }}</td>
+            <td>{{ item.tax }}%</td>
+            <td>₹{{ getLineItemTotal(item) | number:'1.2-2' }}</td>
+            <td><button class="btn-remove" (click)="removeLineItem(i)">✕</button></td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="4" class="total-label">Total</td>
+            <td colspan="2" class="total-value">₹{{ getInvoiceTotal() | number:'1.2-2' }}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <button class="btn-primary" (click)="onCreateInvoice()">Create Invoice</button>
+  </div>
+
+  <div class="content-grid">
+
+    <!-- invoices list -->
+    <div class="invoices-list">
+      <div class="loading" *ngIf="isLoading">Loading...</div>
+      <div class="empty-state" *ngIf="!isLoading && invoices.length === 0">No invoices found</div>
+
+      <div
+        class="invoice-card"
+        *ngFor="let inv of invoices"
+        [class.selected]="selectedInvoice?.id === inv.id"
+        (click)="selectInvoice(inv)">
+
+        <div class="inv-header">
+          <span class="inv-id">#{{ inv.id }}</span>
+          <span class="badge" [class]="getStatusClass(inv.status)">{{ inv.status }}</span>
+        </div>
+        <div class="inv-customer">{{ inv.customerName }}</div>
+        <div class="inv-email">{{ inv.customerEmail }}</div>
+        <div class="inv-footer">
+          <span class="inv-amount">₹{{ inv.totalAmount | number:'1.2-2' }}</span>
+          <span class="inv-date">{{ inv.createdAt | date:'MMM d, y' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- invoice detail -->
+    <div class="invoice-detail" *ngIf="selectedInvoice">
+      <div class="detail-header">
+        <div>
+          <h2>Invoice #{{ selectedInvoice.id }}</h2>
+          <span class="badge" [class]="getStatusClass(selectedInvoice.status)">
+            {{ selectedInvoice.status }}
+          </span>
+        </div>
+        <div class="detail-actions">
+          <button
+            class="btn-action blue"
+            *ngIf="selectedInvoice.status === 'DRAFT'"
+            (click)="onSendInvoice(selectedInvoice.id)">
+            Send
+          </button>
+          <button
+            class="btn-action green"
+            *ngIf="selectedInvoice.status === 'SENT' || selectedInvoice.status === 'OVERDUE'"
+            (click)="onMarkAsPaid(selectedInvoice.id)">
+            Mark Paid
+          </button>
+          <button
+            class="btn-action red"
+            *ngIf="selectedInvoice.status === 'DRAFT' || selectedInvoice.status === 'SENT'"
+            (click)="onCancelInvoice(selectedInvoice.id)">
+            Cancel
+          </button>
+        </div>
+      </div>
+
+      <div class="detail-info">
+        <div class="info-row">
+          <span>Customer</span>
+          <span>{{ selectedInvoice.customerName }}</span>
+        </div>
+        <div class="info-row">
+          <span>Email</span>
+          <span>{{ selectedInvoice.customerEmail }}</span>
+        </div>
+        <div class="info-row" *ngIf="selectedInvoice.customerAddress">
+          <span>Address</span>
+          <span>{{ selectedInvoice.customerAddress }}</span>
+        </div>
+        <div class="info-row" *ngIf="selectedInvoice.paymentTerms">
+          <span>Payment Terms</span>
+          <span>{{ selectedInvoice.paymentTerms }}</span>
+        </div>
+        <div class="info-row" *ngIf="selectedInvoice.dueDate">
+          <span>Due Date</span>
+          <span>{{ selectedInvoice.dueDate | date:'MMM d, y' }}</span>
+        </div>
+        <div class="info-row">
+          <span>Created</span>
+          <span>{{ selectedInvoice.createdAt | date:'MMM d, y' }}</span>
+        </div>
+      </div>
+
+      <table class="line-items-table" *ngIf="selectedInvoice && selectedInvoice.lineItems && selectedInvoice.lineItems.length > 0">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Qty</th>
+            <th>Unit Price</th>
+            <th>Tax</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of selectedInvoice.lineItems">
+            <td>{{ item.description }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>₹{{ item.unitPrice }}</td>
+            <td>{{ item.tax }}%</td>
+            <td>₹{{ item.totalPrice | number:'1.2-2' }}</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="4" class="total-label">Total Amount</td>
+            <td class="total-value">₹{{ selectedInvoice.totalAmount | number:'1.2-2' }}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+  </div>
+</div>
