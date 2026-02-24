@@ -1,0 +1,119 @@
+<app-navbar></app-navbar>
+
+<div class="dashboard-container">
+
+  <!-- welcome header -->
+  <div class="welcome-header">
+    <div>
+      <h1>Welcome back, {{ fullName }} </h1>
+      <p>Here's what's happening with your account today.</p>
+    </div>
+  </div>
+
+  <!-- wallet balance card -->
+  <div class="balance-card" *ngIf="wallet">
+    <div class="balance-label">Total Wallet Balance</div>
+    <div class="balance-amount">₹ {{ wallet.balance | number:'1.2-2' }}</div>
+    <div class="balance-actions">
+      <a routerLink="/wallet" class="action-btn">Add Money</a>
+      <a routerLink="/wallet" class="action-btn outline">Send Money</a>
+      <a routerLink="/wallet" class="action-btn outline">Withdraw</a>
+    </div>
+  </div>
+
+  <!-- quick stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon"></div>
+      <div class="stat-info">
+        <div class="stat-label">Transactions</div>
+        <div class="stat-value">{{ recentTransactions.length }}</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"></div>
+      <div class="stat-info">
+        <div class="stat-label">Pending Requests</div>
+        <div class="stat-value">{{ incomingRequests.length }}</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"></div>
+      <div class="stat-info">
+        <div class="stat-label">Quick Pay</div>
+        <div class="stat-value">
+          <a routerLink="/wallet">Send</a>
+        </div>
+      </div>
+    </div>
+    <div class="stat-card" *ngIf="isBusinessUser()">
+      <div class="stat-icon"></div>
+      <div class="stat-info">
+        <div class="stat-label">Analytics</div>
+        <div class="stat-value">
+          <a routerLink="/analytics">View</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-grid">
+
+    <!-- recent transactions -->
+    <div class="section-card">
+      <div class="section-header">
+        <h2>Recent Transactions</h2>
+        <a routerLink="/transactions">View All</a>
+      </div>
+
+      <div class="loading" *ngIf="isLoading">Loading...</div>
+
+      <div class="empty-state" *ngIf="!isLoading && recentTransactions.length === 0">
+        No transactions yet
+      </div>
+
+      <div class="transaction-list" *ngIf="!isLoading">
+        <div class="transaction-item" *ngFor="let tx of recentTransactions">
+          <div class="tx-icon">
+            {{ tx.type === 'SENT' || tx.type === 'WITHDRAWAL' ? '↑' : '↓' }}
+          </div>
+          <div class="tx-details">
+            <div class="tx-name">
+              {{ tx.type === 'SENT' ? tx.receiverName :
+                 tx.type === 'RECEIVED' ? tx.senderName :
+                 tx.type === 'ADDED_FUNDS' ? 'Added Funds' : 'Withdrawal' }}
+            </div>
+            <div class="tx-date">{{ tx.createdAt | date:'MMM d, y' }}</div>
+          </div>
+          <div class="tx-amount" [class]="getTransactionColor(tx.type)">
+            {{ getTransactionSign(tx.type) }}₹{{ tx.amount | number:'1.2-2' }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- pending money requests -->
+    <div class="section-card">
+      <div class="section-header">
+        <h2>Pending Requests</h2>
+        <a routerLink="/wallet">View All</a>
+      </div>
+
+      <div class="empty-state" *ngIf="incomingRequests.length === 0">
+        No pending requests
+      </div>
+
+      <div class="request-list">
+        <div class="request-item" *ngFor="let req of incomingRequests">
+          <div class="req-details">
+            <div class="req-name">{{ req.requesterName }}</div>
+            <div class="req-purpose">{{ req.purpose || 'No purpose specified' }}</div>
+          </div>
+          <div class="req-amount">₹{{ req.amount | number:'1.2-2' }}</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
