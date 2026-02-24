@@ -1,0 +1,208 @@
+<div class="admin-layout">
+
+  <!-- sidebar -->
+  <div class="admin-sidebar">
+    <div class="sidebar-brand">
+      <span class="logo">₹</span>
+      <span>RevPay Admin</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button [class.active]="activeTab === 'dashboard'" (click)="setTab('dashboard')">
+         Dashboard
+      </button>
+      <button [class.active]="activeTab === 'loans'" (click)="setTab('loans')">
+         Loan Applications
+        <span class="nav-badge" *ngIf="stats && stats.pendingLoans > 0">{{ stats.pendingLoans }}</span>
+      </button>
+    
+    </nav>
+
+    <button class="btn-logout" (click)="logout()">Logout</button>
+  </div>
+
+  <!-- main content -->
+  <div class="admin-main">
+
+    <!-- ===== DASHBOARD TAB ===== -->
+    <div *ngIf="$any(activeTab) === 'dashboard'">
+      <div class="page-header">
+        <h1>Admin Dashboard</h1>
+        <p>Overview of RevPay platform</p>
+      </div>
+
+      <div class="stats-grid" *ngIf="stats">
+        <div class="stat-card blue">
+          <div class="stat-icon"></div>
+          <div class="stat-info">
+            <div class="stat-value">{{ stats.totalUsers }}</div>
+            <div class="stat-label">Total Users</div>
+            <div class="stat-sub">{{ stats.businessUsers }} business · {{ stats.personalUsers }} personal</div>
+          </div>
+        </div>
+
+        <div class="stat-card orange">
+          <div class="stat-icon"></div>
+          <div class="stat-info">
+            <div class="stat-value">{{ stats.pendingLoans }}</div>
+            <div class="stat-label">Pending Loans</div>
+            <div class="stat-sub">Awaiting review</div>
+          </div>
+        </div>
+
+        <div class="stat-card green">
+          <div class="stat-icon"></div>
+          <div class="stat-info">
+            <div class="stat-value">{{ stats.approvedLoans }}</div>
+            <div class="stat-label">Approved Loans</div>
+            <div class="stat-sub">Out of {{ stats.totalLoans }} total</div>
+          </div>
+        </div>
+
+        <div class="stat-card red">
+          <div class="stat-icon"></div>
+          <div class="stat-info">
+            <div class="stat-value">{{ stats.rejectedLoans }}</div>
+            <div class="stat-label">Rejected Loans</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- quick action -->
+      <div class="quick-action" *ngIf="stats && stats.pendingLoans > 0">
+        <div class="qa-text">
+          <strong>{{ stats.pendingLoans }} loan application{{ stats.pendingLoans > 1 ? 's' : '' }}</strong> waiting for review
+        </div>
+        <button class="btn-review" (click)="setTab('loans'); setFilter('PENDING')">Review Now →</button>
+      </div>
+    </div>
+
+    <!-- ===== LOANS TAB ===== -->
+    <div *ngIf="$any(activeTab) === 'loans'">
+      <div class="page-header">
+        <h1>Loan Applications</h1>
+        <p>Approve or reject business loan applications</p>
+      </div>
+
+      <div class="filter-tabs">
+        <button
+          *ngFor="let f of filters"
+          [class.active]="activeFilter === f"
+          (click)="setFilter(f)">
+          {{ f }}
+        </button>
+      </div>
+
+      <div class="loading" *ngIf="isLoading">Loading...</div>
+      <div class="empty-state" *ngIf="!isLoading && loans.length === 0">No loan applications found</div>
+
+      <div class="loans-table" *ngIf="!isLoading && loans.length > 0">
+        <div class="table-header">
+          <span>ID</span>
+          <span>Applicant</span>
+          <span>Amount</span>
+          <span>Purpose</span>
+          <span>Tenure</span>
+          <span>EMI</span>
+          <span>Applied On</span>
+          <span>Document</span>
+          <span>Status</span>
+          <span>Actions</span>
+        </div>
+
+        <div class="table-row" *ngFor="let loan of loans">
+  <span class="cell-id">#{{ loan.id }}</span>
+  <span class="cell-applicant">
+    <div class="applicant-name">{{ loan.applicantName }}</div>
+    <div class="applicant-email">{{ loan.applicantEmail }}</div>
+  </span>
+  <span class="cell-amount">₹{{ loan.loanAmount | number:'1.0-0' }}</span>
+  <span class="cell-purpose">{{ loan.purpose }}</span>
+  <span>{{ loan.tenure }}m</span>
+  <span>₹{{ loan.emiAmount | number:'1.0-0' }}</span>
+  <span class="cell-date">{{ loan.createdAt | date:'MMM d, y' }}</span>
+ <span class="cell-doc">
+  <button
+    *ngIf="loan.documentPath"
+    class="btn-view-doc"
+    (click)="viewDocument(loan.id)">
+     View Doc
+  </button>
+  <span *ngIf="!loan.documentPath" class="no-doc">No doc</span>
+</span>
+  <span>
+    <span class="badge" [class]="getStatusClass(loan.status)">{{ loan.status }}</span>
+  </span>
+  <span class="cell-actions">
+    <button
+      class="btn-approve"
+      *ngIf="loan.status === 'PENDING'"
+      (click)="onApprove(loan.id)">
+      Approve
+    </button>
+    <button
+      class="btn-reject"
+      *ngIf="loan.status === 'PENDING'"
+      (click)="openRejectModal(loan.id)">
+      Reject
+    </button>
+    <span class="no-action" *ngIf="loan.status !== 'PENDING'">—</span>
+  </span>
+</div>
+       
+    <!-- ===== USERS TAB ===== -->
+    <div *ngIf="$any(activeTab) === 'users'">
+      <div class="page-header">
+        <h1>All Users</h1>
+        <p>View all registered users on the platform</p>
+      </div>
+
+      <div class="loading" *ngIf="isLoading">Loading...</div>
+      <div class="empty-state" *ngIf="!isLoading && users.length === 0">No users found</div>
+
+      <div class="users-table" *ngIf="!isLoading && users.length > 0">
+        <div class="table-header">
+          <span>ID</span>
+          <span>Name</span>
+          <span>Email</span>
+          <span>Phone</span>
+          <span>Role</span>
+          <span>Verified</span>
+          <span>Active</span>
+          <span>Joined</span>
+        </div>
+
+        <div class="table-row" *ngFor="let u of users">
+          <span class="cell-id">#{{ u.id }}</span>
+          <span class="cell-name">{{ u.fullName }}</span>
+          <span class="cell-email">{{ u.email }}</span>
+          <span>{{ u.phone }}</span>
+          <span>
+            <span class="badge" [class]="getRoleClass(u.role)">{{ u.role }}</span>
+          </span>
+          <span [class]="u.isVerified ? 'yes' : 'no'">{{ u.isVerified ? '✓' : '✗' }}</span>
+          <span [class]="u.isActive ? 'yes' : 'no'">{{ u.isActive ? '✓' : '✗' }}</span>
+          <span class="cell-date">{{ u.createdAt | date:'MMM d, y' }}</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- reject modal -->
+<div class="modal-overlay" *ngIf="rejectingLoanId !== null" (click)="closeRejectModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h2>Reject Loan #{{ rejectingLoanId }}</h2>
+    <p>Provide a reason for rejection (optional — will be sent to the applicant):</p>
+    <textarea
+      [(ngModel)]="rejectReason"
+      placeholder="Enter rejection reason..."
+      rows="4">
+    </textarea>
+    <div class="modal-actions">
+      <button class="btn-cancel-modal" (click)="closeRejectModal()">Cancel</button>
+      <button class="btn-confirm-reject" (click)="onReject()">Confirm Reject</button>
+    </div>
+  </div>
+</div>
