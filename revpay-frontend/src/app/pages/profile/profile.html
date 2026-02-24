@@ -1,0 +1,105 @@
+<app-navbar></app-navbar>
+
+<div class="profile-container">
+
+  <div class="profile-header" *ngIf="user">
+    <div class="avatar">{{ user.fullName.charAt(0).toUpperCase() }}</div>
+    <div class="user-info">
+      <h1>{{ user.fullName }}</h1>
+      <p>{{ user.email }}</p>
+      <span class="role-badge">{{ user.role }}</span>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button [class.active]="activeTab === 'profile'" (click)="setTab('profile')">Profile</button>
+    <button [class.active]="activeTab === 'password'" (click)="setTab('password')">Password</button>
+    <button [class.active]="activeTab === 'pin'" (click)="setTab('pin')">Transaction PIN</button>
+  </div>
+
+  <!-- update profile -->
+  <div class="form-card" *ngIf="activeTab === 'profile'">
+    <h2>Update Profile</h2>
+
+    <div class="form-group">
+      <label>Full Name</label>
+      <input type="text" [(ngModel)]="profileForm.fullName" placeholder="Enter full name">
+    </div>
+
+    <div class="form-group">
+      <label>Phone Number</label>
+      <input type="tel" [(ngModel)]="profileForm.phone" placeholder="Enter phone number">
+    </div>
+
+    <div class="form-group readonly">
+      <label>Email</label>
+      <input type="email" [value]="user?.email" readonly>
+    </div>
+
+    <div class="form-group readonly">
+      <label>Account Type</label>
+      <input type="text" [value]="user?.role" readonly>
+    </div>
+
+    <div class="form-group readonly">
+      <label>Member Since</label>
+      <input type="text" [value]="user?.createdAt | date:'MMM d, y'" readonly>
+    </div>
+
+    <button class="btn-primary" (click)="onUpdateProfile()" [disabled]="isLoading">
+      {{ isLoading ? 'Saving...' : 'Save Changes' }}
+    </button>
+  </div>
+
+  <!-- change password -->
+  <div class="form-card" *ngIf="activeTab === 'password'">
+    <h2>Change Password</h2>
+
+    <div class="form-group">
+      <label>Current Password</label>
+      <input type="password" [(ngModel)]="passwordForm.currentPassword" placeholder="Enter current password">
+    </div>
+
+    <div class="form-group">
+      <label>New Password</label>
+      <input type="password" [(ngModel)]="passwordForm.newPassword" placeholder="Minimum 6 characters">
+    </div>
+
+    <div class="form-group">
+      <label>Confirm New Password</label>
+      <input type="password" [(ngModel)]="passwordForm.confirmPassword" placeholder="Re-enter new password">
+    </div>
+
+    <button class="btn-primary" (click)="onChangePassword()" [disabled]="isLoading">
+      {{ isLoading ? 'Changing...' : 'Change Password' }}
+    </button>
+  </div>
+
+  <!-- transaction pin -->
+  <div class="form-card" *ngIf="activeTab === 'pin'">
+    <h2>{{ user?.hasTransactionPin ? 'Change' : 'Set' }} Transaction PIN</h2>
+    <p class="pin-info">
+      Your transaction PIN is required when sending or withdrawing money.
+    </p>
+
+    <div class="form-group" *ngIf="user?.hasTransactionPin">
+      <label>Current PIN</label>
+      <input type="password" [(ngModel)]="pinForm.currentPin" placeholder="Enter current PIN" maxlength="4">
+    </div>
+
+    <div class="form-group">
+      <label>New PIN</label>
+      <input type="password" [(ngModel)]="pinForm.pin" placeholder="Enter 4-digit PIN" maxlength="4">
+    </div>
+
+    <div class="form-group">
+      <label>Confirm PIN</label>
+      <input type="password" [(ngModel)]="pinForm.confirmPin" placeholder="Re-enter PIN" maxlength="4">
+    </div>
+
+    <button class="btn-primary" (click)="onSetPin()" [disabled]="isLoading">
+      {{ isLoading ? 'Saving...' : (user?.hasTransactionPin ? 'Change PIN' : 'Set PIN') }}
+    </button>
+  </div>
+
+</div>
