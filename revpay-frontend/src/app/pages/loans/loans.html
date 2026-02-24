@@ -1,0 +1,203 @@
+<app-navbar></app-navbar>
+
+<div class="loans-container">
+
+  <div class="page-header">
+    <h1>Loan Applications</h1>
+    <button class="btn-apply" (click)="toggleApplyForm()">
+      {{ showApplyForm ? '✕ Cancel' : '+ Apply for Loan' }}
+    </button>
+  </div>
+
+  <div class="filter-tabs">
+    <button
+      *ngFor="let f of filters"
+      [class.active]="activeFilter === f"
+      (click)="setFilter(f)">
+      {{ f }}
+    </button>
+  </div>
+
+  <!-- apply form -->
+  <div class="apply-form" *ngIf="showApplyForm">
+    <h2>Apply for Loan</h2>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Loan Amount (₹) *</label>
+        <input
+          type="number"
+          [(ngModel)]="applyForm.loanAmount"
+          placeholder="Enter amount"
+          (input)="calculateEmiPreview()">
+      </div>
+      <div class="form-group">
+        <label>Tenure (months) *</label>
+        <select [(ngModel)]="applyForm.tenure" (change)="calculateEmiPreview()">
+          <option [value]="6">6 months</option>
+          <option [value]="12">12 months</option>
+          <option [value]="24">24 months</option>
+          <option [value]="36">36 months</option>
+          <option [value]="48">48 months</option>
+          <option [value]="60">60 months</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Purpose *</label>
+        <input type="text" [(ngModel)]="applyForm.purpose" placeholder="Purpose of loan">
+      </div>
+      <div class="form-group">
+        <label>Financial Information</label>
+        <input type="text" [(ngModel)]="applyForm.financialInfo" placeholder="Annual income, assets, etc.">
+      </div>
+    </div>
+
+    <!-- EMI preview -->
+    <div class="emi-preview" *ngIf="emiPreview">
+      <div class="emi-label">Estimated Monthly EMI</div>
+      <div class="emi-amount">₹{{ emiPreview | number:'1.2-2' }}</div>
+      <div class="emi-info">At 10% annual interest rate</div>
+    </div>
+
+    <button class="btn-primary" (click)="onApplyLoan()">Submit Application</button>
+  </div>
+
+  <div class="content-grid">
+
+    <!-- loans list -->
+    <div class="loans-list">
+      <div class="loading" *ngIf="isLoading">Loading...</div>
+      <div class="empty-state" *ngIf="!isLoading && loans.length === 0">No loan applications found</div>
+
+      <div
+        class="loan-card"
+        *ngFor="let loan of loans"
+        [class.selected]="selectedLoan?.id === loan.id"
+        (click)="selectLoan(loan)">
+
+        <div class="loan-header">
+          <span class="loan-id">#{{ loan.id }}</span>
+          <span class="badge" [class]="getStatusClass(loan.status)">{{ loan.status }}</span>
+        </div>
+        <div class="loan-amount">₹{{ loan.loanAmount | number:'1.2-2' }}</div>
+        <div class="loan-purpose">{{ loan.purpose }}</div>
+        <div class="loan-footer">
+          <span>{{ loan.tenure }} months</span>
+          <span>EMI: ₹{{ loan.emiAmount | number:'1.2-2' }}</span>
+        </div>
+
+        <!-- progress bar for approved loans -->
+        <div class="progress-wrap" *ngIf="loan.status === 'APPROVED'">
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="getProgressPercent(loan)"></div>
+          </div>
+          <div class="progress-label">
+            ₹{{ loan.totalAmountPaid | number:'1.2-2' }} paid of ₹{{ loan.loanAmount | number:'1.2-2' }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- loan detail -->
+    <div class="loan-detail" *ngIf="selectedLoan">
+
+      <div class="detail-header">
+        <div>
+          <h2>Loan #{{ selectedLoan.id }}</h2>
+          <span class="badge" [class]="getStatusClass(selectedLoan.status)">{{ selectedLoan.status }}</span>
+        </div>
+        <button
+          class="btn-repay"
+          *ngIf="selectedLoan.status === 'APPROVED'"
+          (click)="showRepayForm = !showRepayForm">
+          {{ showRepayForm ? 'Cancel' : 'Make Repayment' }}
+        </button>
+      </div>
+
+      <div class="detail-info">
+        <div class="info-row">
+          <span>Loan Amount</span>
+          <span>₹{{ selectedLoan.loanAmount | number:'1.2-2' }}</span>
+        </div>
+        <div class="info-row">
+          <span>Purpose</span>
+          <span>{{ selectedLoan.purpose }}</span>
+        </div>
+        <div class="info-row">
+          <span>Tenure</span>
+          <span>{{ selectedLoan.tenure }} months</span>
+        </div>
+        <div class="info-row">
+          <span>Interest Rate</span>
+          <span>{{ selectedLoan.interestRate }}% per annum</span>
+        </div>
+        <div class="info-row">
+          <span>Monthly EMI</span>
+          <span>₹{{ selectedLoan.emiAmount | number:'1.2-2' }}</span>
+        </div>
+        <div class="info-row" *ngIf="selectedLoan.status === 'APPROVED'">
+          <span>Total Paid</span>
+          <span class="green">₹{{ selectedLoan.totalAmountPaid | number:'1.2-2' }}</span>
+        </div>
+        <div class="info-row" *ngIf="selectedLoan.status === 'APPROVED'">
+          <span>Remaining</span>
+          <span class="red">₹{{ selectedLoan.remainingAmount | number:'1.2-2' }}</span>
+        </div>
+        <div class="info-row">
+          <span>Applied On</span>
+          <span>{{ selectedLoan.createdAt | date:'MMM d, y' }}</span>
+        </div>
+      </div>
+
+      <!-- repayment form -->
+      <div class="repay-form" *ngIf="showRepayForm">
+        <h3>Make Repayment</h3>
+        <div class="form-group">
+          <label>Amount (₹)</label>
+          <input type="number" [(ngModel)]="repayForm.amount" placeholder="Enter amount">
+        </div>
+        <div class="form-group">
+          <label>Transaction PIN</label>
+          <input type="password" [(ngModel)]="repayForm.transactionPin" placeholder="4-digit PIN" maxlength="4">
+        </div>
+        <button class="btn-primary" (click)="onMakeRepayment()">Pay Now</button>
+      </div>
+
+      <!-- repayment history -->
+      <div class="repayment-history" *ngIf="selectedLoan && selectedLoan.repayments && selectedLoan.repayments.length > 0">
+        <h3>Repayment History</h3>
+        <div class="repayment-item" *ngFor="let r of selectedLoan.repayments">
+          <span>₹{{ r.amountPaid | number:'1.2-2' }}</span>
+          <span>{{ r.paidAt | date:'MMM d, y, h:mm a' }}</span>
+        </div>
+      </div>
+
+      <!-- document upload -->
+<div class="doc-upload" *ngIf="selectedLoan.status === 'PENDING'">
+  <h3>Supporting Document</h3>
+  <p class="doc-info">Upload PDF, JPG, or PNG (max 5MB). This helps admin review your application faster.</p>
+  <div class="doc-status" *ngIf="selectedLoan.documentPath">
+    Document already uploaded: <code>{{ selectedLoan.documentPath }}</code>
+  </div>
+  <div class="upload-row">
+    <input
+      type="file"
+      accept=".pdf,.jpg,.jpeg,.png"
+      (change)="onFileSelected($event)"
+      #fileInput
+      style="display:none">
+    <button class="btn-choose" (click)="fileInput.click()">
+      {{ selectedFile ? selectedFile.name : 'Choose File' }}
+    </button>
+    <button
+      class="btn-upload"
+      *ngIf="selectedFile"
+      (click)="onUploadDocument(selectedLoan.id)">
+      Upload
+    </button>
+  </div>
+</div>
+    </div>
+
+  </div>
+</div>
