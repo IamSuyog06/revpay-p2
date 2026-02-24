@@ -1,0 +1,176 @@
+<app-navbar></app-navbar>
+
+<div class="wallet-container">
+
+  <!-- balance card -->
+  <div class="balance-card" *ngIf="wallet">
+    <div class="balance-label">Wallet Balance</div>
+    <div class="balance-amount">₹ {{ wallet.balance | number:'1.2-2' }}</div>
+  </div>
+
+  <!-- tabs -->
+  <div class="tabs">
+    <button [class.active]="activeTab === 'send'" (click)="setTab('send')">Send Money</button>
+    <button [class.active]="activeTab === 'add'" (click)="setTab('add')">Add Money</button>
+    <button [class.active]="activeTab === 'withdraw'" (click)="setTab('withdraw')">Withdraw</button>
+    <button [class.active]="activeTab === 'request'" (click)="setTab('request')">Request Money</button>
+    <button [class.active]="activeTab === 'incoming'" (click)="setTab('incoming')">
+      Incoming
+      <span class="tab-badge" *ngIf="incomingRequests.length > 0">{{ incomingRequests.length }}</span>
+    </button>
+    <button [class.active]="activeTab === 'outgoing'" (click)="setTab('outgoing')">Outgoing</button>
+  </div>
+
+  <div class="tab-content">
+
+    <!-- send money -->
+    <div *ngIf="activeTab === 'send'" class="form-card">
+      <h2>Send Money</h2>
+      <div class="form-group">
+        <label>Recipient (Email or Phone)</label>
+        <input type="text" [(ngModel)]="sendMoneyForm.recipientIdentifier" placeholder="Enter email or phone">
+      </div>
+      <div class="form-group">
+        <label>Amount (₹)</label>
+        <input type="number" [(ngModel)]="sendMoneyForm.amount" placeholder="Enter amount">
+      </div>
+      <div class="form-group">
+        <label>Note (optional)</label>
+        <input type="text" [(ngModel)]="sendMoneyForm.note" placeholder="Add a note">
+      </div>
+      <div class="form-group">
+        <label>Transaction PIN</label>
+        <input type="password" [(ngModel)]="sendMoneyForm.transactionPin" placeholder="Enter 4-digit PIN" maxlength="4">
+      </div>
+      <button class="btn-primary" (click)="onSendMoney()" [disabled]="isLoading">
+        {{ isLoading ? 'Sending...' : 'Send Money' }}
+      </button>
+    </div>
+
+    <!-- add money -->
+    <div *ngIf="activeTab === 'add'" class="form-card">
+      <h2>Add Money to Wallet</h2>
+      <div class="empty-state" *ngIf="paymentMethods.length === 0">
+        No payment methods added yet. <a routerLink="/payment-methods">Add a card first</a>
+      </div>
+      <ng-container *ngIf="paymentMethods.length > 0">
+        <div class="form-group">
+          <label>Select Card</label>
+          <select [(ngModel)]="addMoneyForm.paymentMethodId">
+            <option [value]="null">Select a card</option>
+            <option *ngFor="let pm of paymentMethods" [value]="pm.id">
+              {{ pm.cardType }} ending {{ pm.lastFourDigits }}
+              {{ pm.isDefault ? '(Default)' : '' }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Amount (₹)</label>
+          <input type="number" [(ngModel)]="addMoneyForm.amount" placeholder="Enter amount">
+        </div>
+        <button class="btn-primary" (click)="onAddMoney()" [disabled]="isLoading">
+          {{ isLoading ? 'Processing...' : 'Add Money' }}
+        </button>
+      </ng-container>
+    </div>
+
+    <!-- withdraw -->
+    <div *ngIf="activeTab === 'withdraw'" class="form-card">
+      <h2>Withdraw to Bank</h2>
+      <div class="form-group">
+        <label>Bank Account Number</label>
+        <input type="text" [(ngModel)]="withdrawForm.bankAccountNumber" placeholder="Enter bank account number">
+      </div>
+      <div class="form-group">
+        <label>Amount (₹)</label>
+        <input type="number" [(ngModel)]="withdrawForm.amount" placeholder="Enter amount">
+      </div>
+      <div class="form-group">
+        <label>Transaction PIN</label>
+        <input type="password" [(ngModel)]="withdrawForm.transactionPin" placeholder="Enter 4-digit PIN" maxlength="4">
+      </div>
+      <button class="btn-primary" (click)="onWithdraw()" [disabled]="isLoading">
+        {{ isLoading ? 'Processing...' : 'Withdraw' }}
+      </button>
+    </div>
+
+    <!-- request money -->
+    <div *ngIf="activeTab === 'request'" class="form-card">
+      <h2>Request Money</h2>
+      <div class="form-group">
+        <label>From (Email or Phone)</label>
+        <input type="text" [(ngModel)]="requestMoneyForm.recipientIdentifier" placeholder="Enter email or phone">
+      </div>
+      <div class="form-group">
+        <label>Amount (₹)</label>
+        <input type="number" [(ngModel)]="requestMoneyForm.amount" placeholder="Enter amount">
+      </div>
+      <div class="form-group">
+        <label>Purpose (optional)</label>
+        <input type="text" [(ngModel)]="requestMoneyForm.purpose" placeholder="What is this for?">
+      </div>
+      <button class="btn-primary" (click)="onRequestMoney()" [disabled]="isLoading">
+        {{ isLoading ? 'Sending...' : 'Send Request' }}
+      </button>
+    </div>
+
+    <!-- incoming requests -->
+    <div *ngIf="activeTab === 'incoming'" class="requests-card">
+      <h2>Incoming Requests</h2>
+      <div class="empty-state" *ngIf="incomingRequests.length === 0">
+        No incoming requests
+      </div>
+      <div class="request-item" *ngFor="let req of incomingRequests">
+        <div class="req-info">
+          <div class="req-name">{{ req.requesterName }}</div>
+          <div class="req-email">{{ req.requesterEmail }}</div>
+          <div class="req-purpose" *ngIf="req.purpose">{{ req.purpose }}</div>
+          <div class="req-date">{{ req.createdAt | date:'MMM d, y' }}</div>
+        </div>
+        <div class="req-right">
+          <div class="req-amount">₹{{ req.amount | number:'1.2-2' }}</div>
+          <span class="badge" [class]="getStatusClass(req.status)">{{ req.status }}</span>
+          <ng-container *ngIf="req.status === 'PENDING'">
+            <input
+              type="password"
+              [(ngModel)]="acceptPinMap[req.id]"
+              placeholder="PIN"
+              maxlength="4"
+              class="pin-input">
+            <div class="req-actions">
+              <button class="btn-accept" (click)="onAcceptRequest(req.id)">Accept</button>
+              <button class="btn-decline" (click)="onDeclineRequest(req.id)">Decline</button>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+
+    <!-- outgoing requests -->
+    <div *ngIf="activeTab === 'outgoing'" class="requests-card">
+      <h2>Outgoing Requests</h2>
+      <div class="empty-state" *ngIf="outgoingRequests.length === 0">
+        No outgoing requests
+      </div>
+      <div class="request-item" *ngFor="let req of outgoingRequests">
+        <div class="req-info">
+          <div class="req-name">To: {{ req.recipientName }}</div>
+          <div class="req-email">{{ req.recipientEmail }}</div>
+          <div class="req-purpose" *ngIf="req.purpose">{{ req.purpose }}</div>
+          <div class="req-date">{{ req.createdAt | date:'MMM d, y' }}</div>
+        </div>
+        <div class="req-right">
+          <div class="req-amount">₹{{ req.amount | number:'1.2-2' }}</div>
+          <span class="badge" [class]="getStatusClass(req.status)">{{ req.status }}</span>
+          <button
+            class="btn-cancel"
+            *ngIf="req.status === 'PENDING'"
+            (click)="onCancelRequest(req.id)">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

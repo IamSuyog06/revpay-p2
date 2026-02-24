@@ -1,0 +1,247 @@
+.wallet-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px 20px;
+}
+
+.balance-card {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 16px;
+  padding: 28px 32px;
+  color: white;
+  margin-bottom: 24px;
+
+  .balance-label {
+    font-size: 14px;
+    opacity: 0.85;
+    margin-bottom: 8px;
+  }
+
+  .balance-amount {
+    font-size: 36px;
+    font-weight: 700;
+  }
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+
+  button {
+    padding: 9px 18px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 10px;
+    background: white;
+    font-size: 13px;
+    font-weight: 600;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+
+    &:hover {
+      border-color: #667eea;
+      color: #667eea;
+    }
+
+    &.active {
+      background: #667eea;
+      border-color: #667eea;
+      color: white;
+    }
+
+    .tab-badge {
+      background: #e53935;
+      color: white;
+      font-size: 10px;
+      padding: 1px 5px;
+      border-radius: 10px;
+      margin-left: 4px;
+    }
+  }
+}
+
+.form-card, .requests-card {
+  background: white;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+
+  h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 24px;
+  }
+}
+
+.form-group {
+  margin-bottom: 18px;
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 7px;
+  }
+
+  input, select {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 14px;
+    outline: none;
+    color: #333;
+    background: white;
+    transition: border-color 0.2s;
+
+    &:focus {
+      border-color: #667eea;
+    }
+
+    &::placeholder {
+      color: #bbb;
+    }
+  }
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 13px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: opacity 0.2s;
+
+  &:hover:not(:disabled) { opacity: 0.9; }
+  &:disabled { opacity: 0.7; cursor: not-allowed; }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #bbb;
+  font-size: 14px;
+
+  a {
+    color: #667eea;
+    font-weight: 600;
+    text-decoration: none;
+  }
+}
+
+.request-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px;
+  border: 1px solid #f0f0f0;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  gap: 16px;
+
+  .req-info {
+    flex: 1;
+
+    .req-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1a1a2e;
+    }
+
+    .req-email {
+      font-size: 12px;
+      color: #aaa;
+      margin-top: 2px;
+    }
+
+    .req-purpose {
+      font-size: 13px;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    .req-date {
+      font-size: 12px;
+      color: #bbb;
+      margin-top: 4px;
+    }
+  }
+
+  .req-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+
+    .req-amount {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1a1a2e;
+    }
+
+    .pin-input {
+      width: 90px;
+      padding: 7px 10px;
+      border: 1.5px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      text-align: center;
+      outline: none;
+
+      &:focus { border-color: #667eea; }
+    }
+
+    .req-actions {
+      display: flex;
+      gap: 8px;
+    }
+  }
+}
+
+.badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+
+  &.badge-pending { background: #fff3e0; color: #f57c00; }
+  &.badge-success { background: #e8f5e9; color: #388e3c; }
+  &.badge-danger  { background: #ffebee; color: #c62828; }
+  &.badge-gray    { background: #f5f5f5; color: #888; }
+}
+
+.btn-accept {
+  padding: 6px 14px;
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  &:hover { opacity: 0.85; }
+}
+
+.btn-decline, .btn-cancel {
+  padding: 6px 14px;
+  background: #ef5350;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  &:hover { opacity: 0.85; }
+}
