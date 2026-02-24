@@ -49,7 +49,14 @@ export class LoginComponent {
         this.isLoading = false;
         this.cdr.markForCheck();
         this.toastr.success(`Welcome back, ${response.fullName}!`);
-        this.router.navigate(['/dashboard']);
+        
+        //redirect based on role 
+        if(response.role ==='ADMIN'){
+          this.router.navigate(['/admin']);
+        } else{
+          this.router.navigate(['/dashboard']);
+        }
+       
       },
       error: (error) => {
         this.isLoading = false;

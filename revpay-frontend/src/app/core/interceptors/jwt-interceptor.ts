@@ -1,9 +1,9 @@
 import { HttpInterceptorFn } from '@angular/common/http';
-
+ 
 export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   // get token from localStorage
   const token = localStorage.getItem('token');
-
+ 
   // if token exists add it to every request automatically
   if (token) {
     const cloned = req.clone({
@@ -11,6 +11,7 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
     });
     return next(cloned);
   }
-
+ 
   return next(req);
 };
+ 
