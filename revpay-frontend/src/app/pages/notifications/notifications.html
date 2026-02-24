@@ -1,0 +1,129 @@
+<app-navbar></app-navbar>
+
+<div class="notifications-container">
+
+  <div class="page-header">
+    <h1>Notifications</h1>
+    <button class="btn-read-all" (click)="onMarkAllAsRead()">Mark All as Read</button>
+  </div>
+
+  <div class="tabs">
+    <button [class.active]="activeTab === 'all'" (click)="setTab('all')">All</button>
+    <button [class.active]="activeTab === 'unread'" (click)="setTab('unread')">Unread</button>
+    <button [class.active]="activeTab === 'preferences'" (click)="setTab('preferences')">Preferences</button>
+  </div>
+
+  <!-- notifications list -->
+  <div class="notifications-card" *ngIf="activeTab !== 'preferences'">
+
+    <div class="loading" *ngIf="isLoading">Loading...</div>
+
+    <div class="empty-state" *ngIf="!isLoading && notifications.length === 0">
+      No notifications found
+    </div>
+
+    <div
+      class="notification-item"
+      *ngFor="let n of notifications"
+      [class.unread]="!n.isRead">
+
+      <div class="n-icon">{{ getTypeIcon(n.type) }}</div>
+
+      <div class="n-content">
+        <div class="n-message">{{ n.message }}</div>
+        <div class="n-meta">
+          <span class="n-type">{{ n.type }}</span>
+          <span class="n-date">{{ n.createdAt | date:'MMM d, y, h:mm a' }}</span>
+        </div>
+      </div>
+
+      <div class="n-actions">
+        <span class="unread-dot" *ngIf="!n.isRead"></span>
+        <button
+          class="btn-read"
+          *ngIf="!n.isRead"
+          (click)="onMarkAsRead(n.id)">
+          Mark Read
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- preferences -->
+  <div class="preferences-card" *ngIf="activeTab === 'preferences' && preferences">
+    <h2>Notification Preferences</h2>
+    <p class="pref-subtitle">Choose which notifications you want to receive</p>
+
+    <div class="pref-list">
+      <div class="pref-item">
+        <div class="pref-info">
+          <div class="pref-label"> Transaction Alerts</div>
+          <div class="pref-desc">Get notified when money is sent or received</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" [(ngModel)]="preferences.transactionAlerts">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="pref-item">
+        <div class="pref-info">
+          <div class="pref-label"> Money Request Alerts</div>
+          <div class="pref-desc">Get notified about money requests</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" [(ngModel)]="preferences.moneyRequestAlerts">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="pref-item">
+        <div class="pref-info">
+          <div class="pref-label"> Card Change Alerts</div>
+          <div class="pref-desc">Get notified when cards are added or removed</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" [(ngModel)]="preferences.cardChangeAlerts">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="pref-item">
+        <div class="pref-info">
+          <div class="pref-label"> Low Balance Alerts</div>
+          <div class="pref-desc">Get notified when wallet balance is low</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" [(ngModel)]="preferences.lowBalanceAlerts">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="pref-item">
+        <div class="pref-info">
+          <div class="pref-label"> Invoice Alerts</div>
+          <div class="pref-desc">Get notified about invoice updates</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" [(ngModel)]="preferences.invoiceAlerts">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="pref-item">
+        <div class="pref-info">
+          <div class="pref-label"> Loan Alerts</div>
+          <div class="pref-desc">Get notified about loan status updates</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" [(ngModel)]="preferences.loanAlerts">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <button class="btn-save" (click)="onSavePreferences()">Save Preferences</button>
+  </div>
+
+</div>
